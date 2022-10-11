@@ -31,14 +31,23 @@ function virtualenv_display {
 	fi
 }
 
+function git_commit {
+	last_commit=$( {git log -n 1 --pretty=format:'%H'} 2>&1 )
+	if [ $? -eq 0 ]; then
+		echo "@${last_commit:0:10}"
+	else
+		echo ''
+	fi
+}
+
 # primary prompt
 (( $+functions[virtualenv_prompt_info] )) && PS1='$FG[237]${(l.$(afmagic_dashes)..-.)}%{$reset_color%}
-$(virtualenv_display)$(tf_prompt_info) $FG[032]%~$(git_prompt_info)$(hg_prompt_info) $FG[105]%(!.#.»)%{$reset_color%} '
+$(virtualenv_display)$(tf_prompt_info) $FG[032]%~$(git_prompt_info) $FG[105]%(!.#.»)%{$reset_color%} '
 PS2='%{$fg[red]%}\ %{$reset_color%}'
 RPS1='${return_code}'
 
 # right prompt
-RPS1+=' $my_gray%n%{$reset_color%} [ %DT%T ]%'
+RPS1+=' $my_gray%n$(git_commit)%{$reset_color%} [ %DT%T ]%'
 
 # git settings
 ZSH_THEME_GIT_PROMPT_PREFIX="${FG[075]}(${FG[078]}"
