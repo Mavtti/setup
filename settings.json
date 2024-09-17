@@ -1,0 +1,34 @@
+{
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoImportUserSymbols": true,
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.completeFunctionParens": true,
+    "[python]": {
+        "editor.formatOnType": true,
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "files.associations": {
+        "*.py": "python"
+    },
+    "Notes.notesLocation": "/home/marc/work/notes",
+    "sqlfluff.config": "~/work/data-sharing/.sqlfluff",
+    "sqlfluff.executablePath": "sqlfluff.py",
+    "sqlfluff.experimental.format.executeInTerminal": true,
+    "sqlfluff.linter.run": "onSave",
+    "editor.largeFileOptimizations": false,
+    "workbench.colorTheme": "Default Dark+",
+    "githubPullRequests.pullBranch": "never",
+    "files.exclude": {
+        "**/__pycache__": true
+    },
+    "editor.inlineSuggest.enabled": true,
+    "editor.formatOnSave": true,
+    "files.eol": "\n",
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": true,
+        "scminput": false
+    },
+    "github.copilot.editor.enableAutoCompletions": true
+}
