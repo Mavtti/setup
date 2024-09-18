@@ -2,8 +2,8 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/home/administrateur/.oh-my-zsh"
-
+export ZSH="/home/marc/.oh-my-zsh"
+export AWS_PROFILE=sts
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
@@ -17,42 +17,12 @@ ZSH_THEME="af-magic"
 # ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
 
 # Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+CASE_SENSITIVE="true"
 
 # Uncomment the following line to use hyphen-insensitive completion.
 # Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
+HYPHEN_INSENSITIVE="true"
 
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to automatically update without prompting.
-# DISABLE_UPDATE_PROMPT="true"
-
-# Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
-
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# Caution: this setting can cause issues with multiline prompts (zsh 5.7.1 and newer seem to work)
-# See https://github.com/ohmyzsh/ohmyzsh/issues/5765
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
 
 # Uncomment the following line if you want to change the command execution time
 # stamp shown in the history command output.
@@ -60,35 +30,27 @@ ZSH_THEME="af-magic"
 # "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
 # or set a custom format using the strftime function format specifications,
 # see 'man strftime' for details.
- HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
+HIST_STAMPS="%d/%m/%y %T"
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git terraform zsh-autosuggestions virtualenv)
+plugins=(git terraform zsh-autosuggestions virtualenv asdf aws colorize git-prompt poetry)
 
 export VIRTUAL_ENV_DISABLE_PROMPT=1
-
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
 # export LANG=en_US.UTF-8
 
 #  Preferred editor for local and remote sessions
-#if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='nano'
-#else
-#   export EDITOR='nano'
-#fi
+if [[ -n $SSH_CONNECTION ]]; then
+   export EDITOR='nano'
+else
+   export EDITOR='nano'
+fi
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -112,7 +74,7 @@ gits() {
 
 gitd() {
    branch=$(git rev-parse --abbrev-ref HEAD)
-   git checkout master && git branch -D ${branch}
+   git checkout master && git branch -D ${branch} & git pull
 }
 
 gitf() {
@@ -124,16 +86,77 @@ gita() {
 }
 # ####################################################################
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-export PATH="/home/administrateur/bin:$PATH"
+export PATH="/home/marc/bin:$PATH"
+export PATH="/home/marc/.local/bin:$PATH"
 
-export AWS_PROFILE=sts
-export PATH="$HOME/.tfenv/bin:$PATH"
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-export PATH="$PYENV_ROOT/shims:$PATH"
 
-if command -v pyenv 1>/dev/null 2>&1;
-	 then eval "$(pyenv init -)"
-fi
+export REDSHIFT_DB=prod
 
-eval "$(pyenv virtualenv-init -)"
+. $HOME/.asdf/asdf.sh
+
+#export PATH="$HOME/.tfenv/bin:$PATH"
+#export PYENV_ROOT="$HOME/.pyenv"
+#export PATH="$PYENV_ROOT/bin:$PATH"
+#export PATH="$PYENV_ROOT/shims:$PATH"
+
+#if command -v pyenv 1>/dev/null 2>&1;
+#	 then eval "$(pyenv init -)"
+#fi
+
+#eval "$(pyenv virtualenv-init -)"
+
+fpath+=~/.zfunc
+autoload -Uz compinit && compinit
+
+unalias gsts
+export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$(yarn global bin)"
+
+export AWS_DEFAULT_REGION=eu-west-1
+
+function awslogin {
+    config_dir=$HOME/.aws
+    config_file=$config_dir/google_config
+    config_docs='https://data.pennylane.tech/posts/local-setup/'
+
+    # Checking that the config file exists, and contains the right keys
+    if [[ ! -f $config_file ]] ; then
+        echo -e "Missing $config_file, aborting. See setup instructions at \e]8;;$config_docs\a$config_docs\e]8;;\a."
+        return 1
+    fi
+
+    . $config_file
+    if [ -z "$google_email" ]; then
+        echo "Missing key 'google_email' in $config_file."
+        return 1
+    elif [ -z "$google_idp_id" ]; then
+        echo "Missing key 'google_idp_id' in $config_file."
+        return 1
+    elif [ -z "$google_sp_id" ]; then
+        echo "Missing key 'google_sp_id' in $config_file."
+        return 1
+    elif [ -z "$aws_region" ]; then
+        echo "Missing key 'aws_region' in $config_file."
+        return 1
+    fi
+
+    # Configuring region for all AWS commands, using the default profile
+    echo "[default]\nregion = ${aws_region}" > $config_dir/config
+    # Google SAML login, followed by Codeartifact login
+    gsts \
+        --idp-id=$google_idp_id \
+        --sp-id=$google_sp_id \
+        --aws-region $aws_region \
+        --cache-dir $config_dir \
+        --verbose \
+        --force \
+        --username $google_email \
+	--playwright-engine-channel "chrome"
+    # echo "\nLogging in to Codeartifact..."
+    # aws codeartifact login \
+    #     --tool pip \
+    #     --domain pennylane \
+    #     --repository pypi-pennylane \
+}
+
+alias awslogin='awslogin'
